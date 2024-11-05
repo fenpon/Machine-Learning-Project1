@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import matplotlib.font_manager as fm
 import numpy as np
 import pandas as pd
 
@@ -6,15 +7,6 @@ import pandas as pd
 plt.rcParams['font.family'] = 'Malgun Gothic'  # Windows의 경우
 
 def lookCount(lookdf, looks):
-    """
-    주어진 DataFrame의 특정 컬럼에 대한 값 분포를 시각화합니다.
-    
-    Parameters:
-    lookdf : pd.DataFrame
-        분석할 DataFrame
-    looks : list
-        분석할 컬럼의 이름 리스트
-    """
     num_cols = 3
     num_rows = (len(looks) + num_cols - 1) // num_cols  # 나누기 연산자 수정
     fig, axes = plt.subplots(num_rows, num_cols, figsize=(10, 5 * num_rows))
@@ -38,17 +30,6 @@ def lookCount(lookdf, looks):
     plt.show()
 
 def lookLine(lookdf, x, y):
-    """
-    주어진 DataFrame의 두 변수 간의 관계를 선 그래프로 나타냅니다.
-
-    Parameters:
-    lookdf : pd.DataFrame
-        분석할 DataFrame
-    x : str
-        x축으로 사용할 컬럼 이름
-    y : str
-        y축으로 사용할 컬럼 이름
-    """
     plt.figure(figsize=(4, 2))
     plt.plot(lookdf[x], lookdf[y], marker='o', linestyle='-', color='b')
     for i, value in enumerate(lookdf[y]):
@@ -64,5 +45,46 @@ def lookLine(lookdf, x, y):
     plt.grid()
     plt.tight_layout()
     plt.show()
+def look3D(df, colPlot, texts, color_map,name):
 
+    fig = plt.figure(figsize=(10, 7))
+    ax = fig.add_subplot(111, projection='3d')
+    
+    ax.scatter(
+        df[colPlot[0]] ,
+        df[colPlot[1]],
+        df["score"],
+        c=color_map, marker='o'
+    )
+    
+    if(len(texts) != 0):
+        for idx, row in pd.concat(texts).iterrows():
+            x_coord =  df[colPlot[0]]
+            y_coord =  df[colPlot[1]]
 
+            ax.text(
+                x_coord,
+                y_coord,
+                row['score'],
+                row[name],
+                fontsize=8
+            )
+
+    
+    ax.set_xlabel(colPlot[0] + " = x")
+    ax.set_ylabel(colPlot[1] + " = y")
+    ax.set_zlabel("score")
+    ax.set_title('주석이 포함된 3D 산점도')
+
+    plt.tight_layout()
+    plt.show()
+
+def lookOne(df,tag,color_map):
+    # 진학률의 히스토그램 그리기
+    plt.figure(figsize=(10, 6))
+    plt.scatter(range(len(df)), df[tag], color=color_map, alpha=0.7)
+    plt.title(f'{tag} 산포도')
+    plt.xlabel('데이터 인덱스')
+    plt.ylabel(tag)
+    plt.grid(True)
+    plt.show()
