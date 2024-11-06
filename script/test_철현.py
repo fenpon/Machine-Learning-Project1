@@ -25,7 +25,6 @@ apartment_gdf = gpd.GeoDataFrame(apartment_data, geometry=gpd.points_from_xy(apa
 school_data = pd.read_csv('./export/education/final_graded_school_locations.csv')
 school_gdf = gpd.GeoDataFrame(school_data, geometry=gpd.points_from_xy(school_data['lon'], school_data['lat']), crs='EPSG:4326')
 
-# 클릭 이벤트 함수 정의
 def on_click(event):
     # 클릭된 좌표 가져오기
     click_point = Point(event.xdata, event.ydata)
@@ -41,7 +40,7 @@ def on_click(event):
     fig, ax = plt.subplots(figsize=(10, 10))
     gdf.plot(ax=ax, color='lightgray')  # 모든 구의 지도 추가
     closest_gu_gdf = gpd.GeoDataFrame([closest_gu], geometry='geometry')
-    closest_gu_gdf.plot(ax=ax, color='red')  # 가장 가까운 구를 빨강으로 표시
+    closest_gu_gdf.plot(ax=ax, color='green')  # 가장 가까운 구를 녹색으로 표시
     
     # 해당 구 내의 아파트 정보 표시 (점 크기 증가)
     apartments_in_gu = apartment_gdf[apartment_gdf.within(closest_gu['geometry'])]
@@ -55,6 +54,7 @@ def on_click(event):
     plt.title(f"가장 가까운 구: {closest_gu['name']}")
     plt.legend()
     plt.show()
+
     # 아파트 클릭 이벤트 함수 정의 및 연결
     
 
@@ -102,7 +102,7 @@ def on_click(event):
     # 교육시설 클릭 이벤트 연결
     fig.canvas.mpl_connect("button_press_event", on_school_click)
 
-
+##########################
 
 # 지도 그리기
 fig, ax = plt.subplots(figsize=(10, 10))
