@@ -105,15 +105,15 @@ def look3ND(df, colPlot, texts, color_map,name):
     if(len(texts) != 0):
         for idx, row in pd.concat(texts).iterrows():
             ax.text(
-                xVals[0][idx],
-                xVals[1][idx],
+                xVals[0],
+                xVals[1],
                 row['score'],
                 row[name],
                 fontsize=8
             )
 
-    col_0 = ''.join(map(str, colPlot[:middleIndex]))
-    col_1 = ''.join(map(str, colPlot[middleIndex:]))
+    col_0 = ' + '.join(map(str, colPlot[:middleIndex]))
+    col_1 = ' + '.join(map(str, colPlot[middleIndex:]))
     ax.set_xlabel(col_0 + " = x")
     ax.set_ylabel(col_1 + " = y")
     ax.set_zlabel("score")
