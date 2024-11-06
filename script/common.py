@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import matplotlib.font_manager as fm
 import numpy as np
 import pandas as pd
+from sklearn.decomposition import PCA
 
 # 한글 폰트 설정
 plt.rcParams['font.family'] = 'Malgun Gothic'  # Windows의 경우
@@ -73,6 +74,48 @@ def look3D(df, colPlot, texts, color_map,name):
     
     ax.set_xlabel(colPlot[0] + " = x")
     ax.set_ylabel(colPlot[1] + " = y")
+    ax.set_zlabel("score")
+    ax.set_title('주석이 포함된 3D 산점도')
+
+    plt.tight_layout()
+    plt.show()
+def look3ND(df, colPlot, texts, color_map,name):
+
+    fig = plt.figure(figsize=(10, 7))
+    ax = fig.add_subplot(111, projection='3d')
+    middleIndex = int(len(colPlot) / 2)
+    xtag = [colPlot[:middleIndex],colPlot[middleIndex:]]
+   
+
+    pca = PCA(n_components=1)
+    xVals = []
+    
+    for i in range(2):
+        xx = pca.fit_transform(df[xtag[i]])
+        xVals.append(xx.flatten())
+ 
+
+    ax.scatter(
+        xVals[0] ,
+        xVals[1],
+        df["score"],
+        c=color_map, marker='o'
+    )
+    
+    if(len(texts) != 0):
+        for idx, row in pd.concat(texts).iterrows():
+            ax.text(
+                xVals[0][idx],
+                xVals[1][idx],
+                row['score'],
+                row[name],
+                fontsize=8
+            )
+
+    col_0 = ''.join(map(str, colPlot[:middleIndex]))
+    col_1 = ''.join(map(str, colPlot[middleIndex:]))
+    ax.set_xlabel(col_0 + " = x")
+    ax.set_ylabel(col_1 + " = y")
     ax.set_zlabel("score")
     ax.set_title('주석이 포함된 3D 산점도')
 
