@@ -88,6 +88,7 @@ def on_click(event):
     fig.canvas.mpl_connect("button_press_event", on_apartment_click)
 
     # 교육시설 클릭 이벤트 함수 정의 및 연결
+    # 등급에 따른 색상 맵핑 함수
     def get_color_by_grade(grade):
         if grade == 2:
             return 'purple'  # 높은 등급
@@ -95,12 +96,12 @@ def on_click(event):
             return 'yellow'  # 중간 등급
         else:
             return 'gray'    # 낮은 등급
-    def plot_schools_by_grade(ax, school_gdf):
+
+    # 구 내 교육시설을 등급별로 다른 색상으로 표시하는 함수
+    def plot_schools_by_grade(ax, schools_in_gu):
         # 등급별로 다른 색상을 적용하여 plot
-        colors = school_gdf['등급'].apply(get_color_by_grade)
-        school_gdf.plot(ax=ax, color=colors, markersize=50, label='교육시설')
-# 지도 내 교육시설을 등급별로 다른 색상으로 표시하는 함수
-    
+        colors = schools_in_gu['등급'].apply(get_color_by_grade)
+        schools_in_gu.plot(ax=ax, color=colors, markersize=50, label='교육시설')
 
     # 교육시설 클릭 이벤트 함수 수정
     def on_school_click(event):
@@ -112,16 +113,26 @@ def on_click(event):
         closest_school = school_gdf.loc[school_gdf['distance'].idxmin()]
         print(f"가장 가까운 교육시설: {closest_school['학교명']}, 등급: {closest_school['등급']}, 거리: {closest_school['distance']:.2f}")
 
-        # 등급에 따라 색상 선택
-        color = get_color_by_grade(closest_school['등급'])
+        # 선택한 교육시설 주변의 아파트와 다른 교육시설 필터링 (예: 0.01도 이내)
+        buffer_distance = 0.01  # 적절한 거리로 설정
+        apartments_near_school = apartment_gdf[apartment_gdf.distance(closest_school['geometry']) < buffer_distance]
+        schools_near_school = school_gdf[school_gdf.distance(closest_school['geometry']) < buffer_distance]
 
-        # 교육시설 정보를 표시하는 plot 생성
-        fig, ax = plt.subplots()
-        ax.bar(['등급'], [closest_school['등급']], color=color)
-        ax.set_title(f"{closest_school['학교명']}의 정보")
-        ax.set_ylabel('등급')
-        ax.set_xlabel('정보')
+        # 교육시설 지도 표시 (선택된 교육시설 주변 확대)
+        fig, ax = plt.subplots(figsize=(10, 10))
+        gdf.plot(ax=ax, color='lightgray')  # 모든 구 표시
+        apartments_near_school.plot(ax=ax, color='blue', markersize=80, label='아파트')  # 아파트 표시
+        plot_schools_by_grade(ax, schools_near_school)  # 등급별 색상으로 교육시설 표시
+
+        # 선택한 교육시설 주변으로 확대
+        minx, miny, maxx, maxy = closest_school['geometry'].buffer(buffer_distance).bounds
+        ax.set_xlim(minx, maxx)
+        ax.set_ylim(miny, maxy)
+
+        plt.title(f"{closest_school['학교명']} 주변 아파트 및 교육시설")
+        plt.legend()
         plt.show()
+
     # 교육시설 클릭 이벤트 연결
     fig.canvas.mpl_connect("button_press_event", on_school_click)
 
