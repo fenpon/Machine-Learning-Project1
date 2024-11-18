@@ -131,3 +131,25 @@ def lookOne(df,tag,color_map):
     plt.ylabel(tag)
     plt.grid(True)
     plt.show()
+
+
+
+
+def assign_class(group):
+    mean_score = group['score'].mean()  # 전체 데이터의 평균
+    std_score = group['score'].std()  # 전체 데이터의 표준편차
+    
+    # 전체 데이터의 평균 ± 표준편차를 기준으로 상, 중, 하로 나누기
+    conditions = [
+        (group['score'] <= mean_score - std_score),  # 하: 평균 - 1 표준편차 이하
+        (group['score'] > mean_score - std_score) & (group['score'] <= mean_score + std_score),  # 중: 평균 ± 1 표준편차
+        (group['score'] > mean_score + std_score)  # 상: 평균 + 1 표준편차 이상
+    ]
+    
+    # 각 구간에 할당할 값
+    choices = [2, 1, 0]  # 상=0, 중=1, 하=2
+    group['class'] = np.select(conditions, choices, default=1)  # 기본값 '중'으로 설정
+    
+    return group
+
+# 각 클러스터 내에서 y 값을 기준으로 상, 중, 하 분류
